@@ -466,14 +466,19 @@ h1, h2, h3, p { margin: 0; }
 /* ── Results ──────────────────────────────────────────────────── */
 #results, #stats { align-items: center; }
 .col { width: 100%; max-width: 440px; display: flex; flex-direction: column; min-height: 0; flex: 1; }
+.res-summary { flex: none; margin-bottom: 12px; }
 .res-head { text-align: center; padding: 6px 0 4px; }
 .res-head h2 { font-size: 16px; font-weight: 700; color: var(--cream-dim); }
-.big-score { font-size: 64px; font-weight: 800; line-height: 1.05; font-variant-numeric: tabular-nums; letter-spacing: -.015em; text-shadow: 0 4px 0 rgba(6, 34, 22, .45); }
-.best-badge { display: inline-block; margin-top: 4px; padding: 5px 13px 6px; border-radius: 99px; font-size: 14.5px; font-weight: 700; background: rgba(9, 50, 32, .5); color: var(--cream-dim); }
+.big-score { font-size: min(64px, calc(var(--vh) * .082)); font-weight: 800; line-height: 1.05; font-variant-numeric: tabular-nums; letter-spacing: -.015em; text-shadow: 0 4px 0 rgba(6, 34, 22, .45); }
+.meter { width: min(250px, 72%); height: 8px; margin: 7px auto 0; border-radius: 99px; background: rgba(6, 34, 22, .6); overflow: hidden; }
+.meter i { display: block; height: 100%; width: 0; border-radius: 99px; background: var(--good); transition: width .7s cubic-bezier(.2, .7, .3, 1); }
+.possible { margin-top: 6px; font-size: 15.5px; font-weight: 600; color: var(--cream-dim); font-variant-numeric: tabular-nums; }
+.possible b { color: var(--cream); font-weight: 800; font-size: 17.5px; }
+.best-badge { display: inline-block; margin-top: 7px; padding: 5px 13px 6px; border-radius: 99px; font-size: 14.5px; font-weight: 700; background: rgba(9, 50, 32, .5); color: var(--cream-dim); }
 .best-badge b { color: var(--cream); font-variant-numeric: tabular-nums; }
 .best-badge.new { background: var(--dupe); color: #3b2a02; }
 .best-badge:empty { display: none; }
-.facts { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 12px 0 12px; }
+.facts { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 12px 0 0; }
 .facts div { padding: 9px 10px 10px; border-radius: 14px; background: rgba(9, 50, 32, .5); box-shadow: inset 0 0 0 1.5px rgba(155, 232, 185, .22); text-align: center; min-width: 0; }
 .facts b { display: block; font-size: 21px; font-weight: 800; line-height: 1.15; font-variant-numeric: tabular-nums; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .facts b.wordy { letter-spacing: .04em; }
@@ -493,15 +498,53 @@ h1, h2, h3, p { margin: 0; }
   padding: 2px 2px 8px;
 }
 .wordlist h3 { display: flex; justify-content: space-between; align-items: baseline; font-size: 14.5px; font-weight: 700; color: var(--cream-dim); margin: 12px 2px 7px; }
-.wordlist h3:first-child { margin-top: 2px; }
+.wordlist .tip { font-size: 14px; font-weight: 600; color: var(--cream-dim); text-align: center; margin: 0 0 2px; }
 .wordlist h3 em { font-style: normal; font-weight: 600; font-variant-numeric: tabular-nums; }
-.words { display: flex; flex-wrap: wrap; gap: 6px; }
-.words span { padding: 6px 10px 7px; border-radius: 9px; font-size: 15.5px; font-weight: 700; letter-spacing: .05em; line-height: 1; }
-.wordlist.found .words span { background: var(--cream); color: var(--felt-dark); }
-.wordlist.missed .words span { background: rgba(255, 245, 220, .09); box-shadow: inset 0 0 0 1.5px rgba(255, 245, 220, .16); color: var(--cream); }
+.words { display: flex; flex-wrap: wrap; gap: 7px; }
+.words button { min-height: 38px; padding: 0 12px 1px; border-radius: 10px; font-size: 15.5px; font-weight: 700; letter-spacing: .05em; line-height: 1; }
+.wordlist.found .words button { background: var(--cream); color: var(--felt-dark); }
+.wordlist.missed .words button { background: rgba(255, 245, 220, .09); box-shadow: inset 0 0 0 1.5px rgba(255, 245, 220, .16); color: var(--cream); }
+.wordlist .words button[aria-pressed="true"] { background: var(--good); color: #072a15; box-shadow: 0 0 0 2px var(--cream); }
 .empty { text-align: center; color: var(--cream-dim); font-size: 16px; font-weight: 600; line-height: 1.45; padding: 28px 18px; }
 .actions { display: grid; grid-template-columns: 1.2fr 1fr; gap: 12px; padding-bottom: 5px; }
 .actions .btn { font-size: 19px; white-space: nowrap; padding: 10px 8px; }
+
+/* ── Results: where a word sits on the board ──────────────────── */
+.preview {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px;
+  border-radius: 18px;
+  background: rgba(9, 50, 32, .5);
+  box-shadow: inset 0 0 0 1.5px rgba(155, 232, 185, .22);
+  margin-bottom: 12px;
+}
+.preview[hidden] { display: none; }
+.res-summary[hidden] { display: none; }
+.board.mini { --board: 190px; touch-action: auto; cursor: default; box-shadow: inset 0 0 0 calc(var(--board) * .011) var(--rail), inset 0 calc(var(--board) * .03) calc(var(--board) * .05) rgba(0, 0, 0, .4); }
+#miniStart { fill: #0d3b27; stroke: rgba(255, 255, 255, .92); }
+.glyph.start { color: var(--cream); text-shadow: none; }
+#miniArrows path { fill: none; stroke: #0d3b27; stroke-linecap: round; stroke-linejoin: round; transition: opacity .18s ease; }
+.pv-info { flex: 1; min-width: 0; display: flex; flex-direction: column; align-items: flex-start; gap: 5px; }
+.pv-word { font-weight: 800; letter-spacing: .04em; line-height: 1.1; max-width: 100%; overflow-wrap: anywhere; }
+.pv-meta { font-size: 15px; font-weight: 700; color: var(--cream); line-height: 1.3; }
+.pv-meta span { display: block; font-weight: 600; color: var(--cream-dim); }
+.pv-hint { font-size: 13px; font-weight: 600; line-height: 1.3; color: var(--cream-dim); }
+.pv-info .btn { width: auto; min-height: 44px; padding: 0 20px; margin-top: 5px; font-size: 16px; }
+
+@media (max-height: 640px) {
+  .res-head { padding: 0 0 2px; }
+  .facts { margin: 8px 0 0; }
+  .res-summary { margin-bottom: 8px; }
+  .facts div { padding: 6px 8px 7px; }
+  .facts b { font-size: 18px; }
+  .tabs button { min-height: 40px; }
+  .wordlist { margin: 8px 0 8px; }
+  .actions .btn { min-height: 52px; }
+  .preview { margin-bottom: 8px; }
+}
 
 /* ── Statistics ───────────────────────────────────────────────── */
 .page-head { display: grid; grid-template-columns: 46px 1fr 46px; align-items: center; min-height: 52px; }
@@ -636,14 +679,31 @@ th:first-child, td:first-child { text-align: left; }
 
   <section class="screen" id="results" aria-label="Results">
     <div class="col">
-      <div class="res-head">
-        <h2 id="resTitle">Time’s up</h2>
-        <div class="big-score" id="resScore">0</div>
-        <div class="best-badge" id="resBest"></div>
+      <div class="res-summary" id="resSummary">
+        <div class="res-head">
+          <h2 id="resTitle">Time’s up</h2>
+          <div class="big-score" id="resScore">0</div>
+          <div class="meter" aria-hidden="true"><i id="resMeter"></i></div>
+          <p class="possible" id="resPossible"></p>
+          <div class="best-badge" id="resBest"></div>
+        </div>
+        <div class="facts">
+          <div><b id="resWords">0</b><span id="resWordsLabel">words found</span></div>
+          <div><b id="resLongest" class="wordy">–</b><span>longest word</span></div>
+        </div>
       </div>
-      <div class="facts">
-        <div><b id="resWords">0</b><span id="resWordsLabel">words found</span></div>
-        <div><b id="resLongest" class="wordy">–</b><span>longest word</span></div>
+      <div class="preview" id="preview" hidden>
+        <div class="board mini" id="mini" data-state="good" aria-hidden="true">
+          <div class="tiles" id="miniTiles"></div>
+          <svg class="path"><polyline id="miniLine" points=""/><circle id="miniStart" r="0"/><g id="miniArrows"></g></svg>
+          <div class="glyphs" id="miniGlyphs"></div>
+        </div>
+        <div class="pv-info" id="pvInfo" aria-live="polite">
+          <div class="pv-word" id="pvWord"></div>
+          <p class="pv-meta" id="pvMeta"></p>
+          <p class="pv-hint">Starts at the dark dot, then follows the arrows.</p>
+          <button class="btn felt small" id="pvClose">Close</button>
+        </div>
       </div>
       <div class="tabs" role="tablist">
         <button role="tab" id="tabFound" aria-selected="true">Found<i id="tabFoundN">0</i></button>
@@ -848,20 +908,26 @@ const Engine = (() => {
   /* ── Solver ──────────────────────────────────────────────────────
      Depth-first search from every tile, walking the trie in step and
      abandoning a path the moment no dictionary word starts with it.
-     Every word is one trie node, so stamping nodes removes duplicates. */
-  function solve(letters) {
+     Every word is one trie node, so stamping nodes removes duplicates.
+     Pass a Map as `paths` and the solver also records, for each word, the
+     exact run of tile numbers it was walking when it first found it.   */
+  function solve(letters, paths) {
     const codes = new Uint8Array(CELLS);
     for (let i = 0; i < CELLS; i++) codes[i] = letters.charCodeAt(i) - 65;
     const gen = ++generation;
     const out = [];
     const buf = new Array(CELLS);
+    const trail = new Array(CELLS);
 
     const dfs = (cell, node, mask, depth) => {
       buf[depth] = letters[cell];
+      trail[depth] = cell;
       const f = flags[node];
       if ((f & 1) && depth >= MIN_LEN - 1 && stamp[node] !== gen) {
         stamp[node] = gen;
-        out.push(buf.slice(0, depth + 1).join(''));
+        const word = buf.slice(0, depth + 1).join('');
+        out.push(word);
+        if (paths) paths.set(word, trail.slice(0, depth + 1));
       }
       if (!(f & 2)) return;
       const nb = NEIGHBORS[cell];
@@ -978,8 +1044,16 @@ const Engine = (() => {
     return same;
   }
 
-  /* Returns { letters, words } where words is every dictionary word on
-     the board. `avoid` is a list of recent boards to steer away from. */
+  /* Solves a board for play: every word, plus one traced path for each. */
+  function deal(letters) {
+    const paths = new Map();
+    const words = solve(letters, paths);
+    return { letters, words, paths };
+  }
+
+  /* Returns { letters, words, paths } where words is every dictionary word
+     on the board and paths maps each word to one way of tracing it.
+     `avoid` is a list of recent boards to steer away from. */
   function generateBoard(rng, avoid) {
     rng = rng || Math.random;
     let best = null;
@@ -990,12 +1064,17 @@ const Engine = (() => {
       const words = solve(letters);
       let long = 0;
       for (let i = 0; i < words.length; i++) if (words[i].length >= 5) long++;
-      if (words.length >= QUALITY.minWords && long >= QUALITY.minLong) return { letters, words };
+      if (words.length >= QUALITY.minWords && long >= QUALITY.minLong) return deal(letters);
       if (!best || words.length > best.words.length) best = { letters, words };
     }
-    if (best) return best;
-    const letters = drawLetters(rng);
-    return { letters, words: solve(letters) };
+    return deal(best ? best.letters : drawLetters(rng));
+  }
+
+  /* Share of a board's total possible score, as a percentage to one
+     decimal place. A board with nothing to find counts as 0. */
+  function completion(score, max) {
+    if (!(max > 0) || !(score > 0)) return 0;
+    return Math.min(100, Math.round(score / max * 1000) / 10);
   }
 
   /* ── Saved data ──────────────────────────────────────────────────
@@ -1116,7 +1195,7 @@ const Engine = (() => {
   return {
     CELLS, MIN_LEN, NEIGHBORS, PRESETS, DURATION_MIN, DURATION_MAX, DEFAULT_DURATION, QUALITY,
     isAdjacent, scoreFor, loadDictionary, loadDictionarySync, hasWord, solve, sortWords, totalScore,
-    findPath, isValidPath, generateBoard, drawLetters, shapeOk, overlap,
+    findPath, isValidPath, generateBoard, deal, completion, drawLetters, shapeOk, overlap,
     clampDuration, defaultStore, sanitizeStore, recordGame, bestFor, summarize,
     isReady: () => ready,
     wordCount: () => wordCount
@@ -1193,12 +1272,18 @@ const SelfTest = (() => {
     check('no tile reused in a path', !Engine.isValidPath(BOARD_A, 'TRT', [0, 1, 0]) && !Engine.isValidPath(BOARD_A, 'TAI', [0, 2, 3]));
     check('no duplicate words from solver', setA.size === a.length);
 
+    const dealtA = Engine.deal(BOARD_A);
+    check('solver stores a valid path for every word on board A', dealtA.paths.size === a.length && a.every(w => Engine.isValidPath(BOARD_A, w, dealtA.paths.get(w))));
+    check('board A maximum score', Engine.totalScore(a) === a.reduce((s, w) => s + Engine.scoreFor(w.length), 0) && Engine.totalScore(a) > 0, Engine.totalScore(a) + ' points');
+    check('board B maximum score is 600', Engine.totalScore(Engine.solve(BOARD_B)) === 600);
+    check('completion percentage', Engine.completion(4800, 25600) === 18.8 && Engine.completion(0, 25600) === 0 && Engine.completion(25600, 25600) === 100 && Engine.completion(500, 0) === 0 && Engine.completion(1, 3) === 33.3);
+
     const b = Engine.solve(BOARD_B).sort();
     check('board B exact word set', b.join(',') === EXACT_B.join(','), b.join(' '));
     check('all-A board has no words', Engine.solve('AAAAAAAAAAAAAAAA').length === 0);
 
     const rng = seeded(20240229);
-    let allTraceable = true, allLetters = true, playable = true, checked = 0;
+    let allTraceable = true, allLetters = true, playable = true, storedPaths = true, checked = 0;
     const seen = new Set();
     for (let i = 0; i < 40; i++) {
       const g = Engine.generateBoard(rng);
@@ -1208,12 +1293,15 @@ const SelfTest = (() => {
       for (const w of g.words) {
         checked++;
         if (!Engine.hasWord(w) || w.length < 3 || !Engine.isValidPath(g.letters, w, Engine.findPath(g.letters, w))) allTraceable = false;
+        if (!Engine.isValidPath(g.letters, w, g.paths.get(w))) storedPaths = false;
       }
+      if (g.paths.size !== g.words.length) storedPaths = false;
     }
     check('generated boards have 16 letters', allLetters);
     check('generated boards are playable', playable);
     check('generated boards differ', seen.size === 40);
     check('every solver word can be traced', allTraceable, checked + ' words on 40 boards');
+    check('every stored path is a valid trace of its word', storedPaths);
 
     const junk = Engine.sanitizeStore({ settings: { sound: 'yes', duration: 99999 }, stats: { timed: { 80: { games: -4, best: 'x' }, abc: {}, 60: { games: 2, total: 900, best: 600, words: 7 } }, untimed: null, longest: 42 } });
     check('damaged saved data is repaired', junk.settings.sound === true && junk.settings.duration === 600 && !junk.stats.timed[80] && junk.stats.timed[60].best === 600 && junk.stats.untimed.games === 0 && junk.stats.longest === '');
@@ -1541,7 +1629,7 @@ const SelfTest = (() => {
   const G = {
     phase: 'idle',          // idle → playing → ending → idle
     mode: 'timed', duration: 80,
-    letters: '', all: new Set(), allList: [],
+    letters: '', all: new Set(), allList: [], paths: new Map(),
     found: [], foundSet: new Set(), score: 0,
     startAt: 0, endAt: 0, lastShown: -1, ticker: 0, endTimer: 0
   };
@@ -1554,6 +1642,7 @@ const SelfTest = (() => {
     G.duration = mode === 'timed' ? Engine.clampDuration(duration) : 0;
     G.letters = b.letters;
     G.allList = b.words;
+    G.paths = b.paths;
     G.all = new Set(b.words);
     G.found = [];
     G.foundSet = new Set();
@@ -1639,6 +1728,9 @@ const SelfTest = (() => {
       duration: G.duration,
       elapsed: Math.max(0, Math.round((Math.min(Date.now(), G.mode === 'timed' ? G.endAt : Infinity) - G.startAt) / 1000)),
       score: G.score,
+      maxScore: Engine.totalScore(G.allList),
+      letters: G.letters,
+      paths: G.paths,
       found, missed,
       total: G.allList.length,
       longest: found.length ? found[0] : ''
@@ -1956,15 +2048,27 @@ const SelfTest = (() => {
     lastW = window.innerWidth;
     lastH = window.innerHeight;
     resetTrace();
+    if (R.selected) {
+      /* Re-measure against the summary, then redraw the path at the new size. */
+      const panel = $('preview'), summary = $('resSummary');
+      panel.hidden = true;
+      summary.hidden = false;
+      sizePreview(summary.offsetHeight);
+      summary.hidden = true;
+      panel.hidden = false;
+      drawPreview(false);
+    }
   });
 
   /* ── Results ──────────────────────────────────────────────────── */
-  const R = { result: null, tab: 'found' };
+  const R = { result: null, tab: 'found', selected: null };
   let countRun = 0;
 
   function showResults(result) {
+    closePreview();
     R.result = result;
     R.tab = 'found';
+    for (let i = 0; i < Engine.CELLS; i++) miniGlyphEls[i].textContent = result.letters[i];
     const timed = result.mode === 'timed';
     $('resTitle').textContent = timed ? 'Time’s up' : 'Finished in ' + clockText(result.elapsed);
     $('resWords').textContent = result.found.length + ' of ' + result.total;
@@ -1988,10 +2092,24 @@ const SelfTest = (() => {
       badge.appendChild(b);
     }
 
+    /* Share of everything the board had to offer, scored by the same rules. */
+    const possible = $('resPossible');
+    possible.textContent = '';
+    result.percent = Engine.completion(result.score, result.maxScore);
+    if (result.maxScore > 0) {
+      const b = document.createElement('b');
+      b.textContent = result.percent.toFixed(1) + '%';
+      possible.appendChild(b);
+      possible.appendChild(document.createTextNode(' of ' + fmt(result.maxScore) + ' possible'));
+    } else {
+      possible.textContent = 'This board had no words to find';
+    }
+
     renderTabs();
     G.phase = 'idle';
     show('results');
     revealScore(result.score);
+    revealMeter(result.percent);
     if (result.isNewBest && !result.firstGame) Sound.play('best');
     prepareBoard();
   }
@@ -2014,6 +2132,17 @@ const SelfTest = (() => {
     setTimeout(() => { if (run === countRun) el.textContent = fmt(score); }, dur + 250);
   }
 
+  function revealMeter(percent) {
+    const fill = $('resMeter');
+    const width = percent > 0 ? Math.max(2, percent) + '%' : '0';
+    fill.style.transition = 'none';
+    fill.style.width = '0';
+    void fill.offsetWidth;
+    fill.style.transition = '';
+    if (window.requestAnimationFrame && !calm()) requestAnimationFrame(() => { fill.style.width = width; });
+    setTimeout(() => { fill.style.width = width; }, 60);
+  }
+
   function renderTabs() {
     const found = R.tab === 'found';
     $('tabFound').setAttribute('aria-selected', found ? 'true' : 'false');
@@ -2029,6 +2158,10 @@ const SelfTest = (() => {
       box.appendChild(p);
     } else {
       const frag = document.createDocumentFragment();
+      const tip = document.createElement('p');
+      tip.className = 'tip';
+      tip.textContent = 'Tap a word to see it on the board.';
+      frag.appendChild(tip);
       let len = 0, group = null;
       list.forEach(word => {
         if (word.length !== len) {
@@ -2043,14 +2176,150 @@ const SelfTest = (() => {
           group.className = 'words';
           frag.appendChild(group);
         }
-        const s = document.createElement('span');
+        const s = document.createElement('button');
+        s.type = 'button';
+        s.dataset.word = word;
         s.textContent = word;
+        s.setAttribute('aria-pressed', word === R.selected ? 'true' : 'false');
         group.appendChild(s);
       });
       box.appendChild(frag);
     }
     box.scrollTop = 0;
   }
+
+
+  /* ── Results: show where a word sits on the board ─────────────── */
+  const SVG_NS = 'http://www.w3.org/2000/svg';
+  const miniEl = $('mini'), miniLine = $('miniLine'), miniArrows = $('miniArrows'), miniStart = $('miniStart');
+  const miniTileEls = [], miniGlyphEls = [];
+  for (let i = 0; i < Engine.CELLS; i++) {
+    const tile = document.createElement('div');
+    tile.className = 'tile wood';
+    tile.style.backgroundPosition = '0 0, ' + (-((i * 73) % 256)) + 'px ' + (-((i * 131) % 256)) + 'px, 0 0';
+    $('miniTiles').appendChild(tile);
+    miniTileEls.push(tile);
+    const glyph = document.createElement('div');
+    glyph.className = 'glyph';
+    $('miniGlyphs').appendChild(glyph);
+    miniGlyphEls.push(glyph);
+  }
+
+  function markChips() {
+    const chips = $('wordlist').querySelectorAll('button[data-word]');
+    for (let i = 0; i < chips.length; i++) {
+      chips[i].setAttribute('aria-pressed', chips[i].dataset.word === R.selected ? 'true' : 'false');
+    }
+  }
+
+  /* The preview takes exactly the room the score summary had, so the word
+     list underneath does not move when a word is tapped. */
+  function sizePreview(height) {
+    const panel = $('preview');
+    const colWidth = panel.parentNode.clientWidth;
+    const h = Math.max(height, 176);
+    panel.style.height = h + 'px';
+    miniEl.style.setProperty('--board', Math.round(Math.min(h - 20, colWidth * 0.56, 250)) + 'px');
+  }
+
+  function selectWord(word) {
+    if (!R.result || !R.result.paths.has(word)) return;
+    const panel = $('preview'), summary = $('resSummary');
+    if (panel.hidden) {
+      sizePreview(summary.offsetHeight);
+      summary.hidden = true;
+      panel.hidden = false;
+    }
+    R.selected = word;
+    markChips();
+    drawPreview(true);
+  }
+
+  function closePreview() {
+    R.selected = null;
+    $('preview').hidden = true;
+    $('resSummary').hidden = false;
+    markChips();
+  }
+
+  /* Draws the path the solver recorded for the selected word: green tiles,
+     the in-game connecting line, a dark dot under the first letter, and an
+     arrow on every step. */
+  function drawPreview(animate) {
+    const word = R.selected;
+    const path = word && R.result ? R.result.paths.get(word) : null;
+    if (!path) return;
+
+    for (let i = 0; i < Engine.CELLS; i++) {
+      miniTileEls[i].classList.remove('sel', 'start');
+      miniGlyphEls[i].classList.remove('start');
+    }
+    path.forEach(cell => miniTileEls[cell].classList.add('sel'));
+    miniTileEls[path[0]].classList.add('start');
+    miniGlyphEls[path[0]].classList.add('start');
+
+    const box = miniEl.getBoundingClientRect();
+    const centre = cell => {
+      const r = miniTileEls[cell].getBoundingClientRect();
+      return { x: r.left + r.width / 2 - box.left, y: r.top + r.height / 2 - box.top };
+    };
+    const pitch = centre(1).x - centre(0).x;
+    const pts = path.map(centre);
+
+    let length = 0;
+    miniLine.setAttribute('points', pts.map(p => p.x.toFixed(1) + ',' + p.y.toFixed(1)).join(' '));
+    miniLine.style.strokeWidth = (pitch * 0.2).toFixed(1) + 'px';
+    miniStart.setAttribute('cx', pts[0].x.toFixed(1));
+    miniStart.setAttribute('cy', pts[0].y.toFixed(1));
+    miniStart.setAttribute('r', (pitch * 0.3).toFixed(1));
+    miniStart.setAttribute('stroke-width', (pitch * 0.045).toFixed(1));
+
+    while (miniArrows.firstChild) miniArrows.removeChild(miniArrows.firstChild);
+    const a = pitch * 0.088;
+    for (let k = 1; k < pts.length; k++) {
+      const p = pts[k - 1], q = pts[k];
+      length += Math.sqrt((q.x - p.x) * (q.x - p.x) + (q.y - p.y) * (q.y - p.y));
+      const arrow = document.createElementNS(SVG_NS, 'path');
+      arrow.setAttribute('d', 'M' + (-a).toFixed(1) + ' ' + (-a).toFixed(1) + 'L' + (a * 0.55).toFixed(1) + ' 0L' + (-a).toFixed(1) + ' ' + a.toFixed(1));
+      arrow.setAttribute('transform', 'translate(' + ((p.x + q.x) / 2).toFixed(1) + ' ' + ((p.y + q.y) / 2).toFixed(1) + ') rotate(' + (Math.atan2(q.y - p.y, q.x - p.x) * 180 / Math.PI).toFixed(1) + ')');
+      arrow.setAttribute('stroke-width', (pitch * 0.056).toFixed(1));
+      miniArrows.appendChild(arrow);
+    }
+
+    /* The line draws itself from the first tile to the last. */
+    miniLine.style.transition = 'none';
+    miniLine.style.strokeDasharray = 'none';
+    miniLine.style.strokeDashoffset = '0';
+    miniArrows.style.transition = 'none';
+    miniArrows.style.opacity = '1';
+    if (animate && !calm() && length > 0) {
+      const ms = Math.min(520, 160 + path.length * 45);
+      miniLine.style.strokeDasharray = length.toFixed(1) + ' ' + length.toFixed(1);
+      miniLine.style.strokeDashoffset = length.toFixed(1);
+      miniArrows.style.opacity = '0';
+      void miniEl.offsetWidth;
+      miniLine.style.transition = 'stroke-dashoffset ' + ms + 'ms ease-out';
+      miniLine.style.strokeDashoffset = '0';
+      miniArrows.style.transition = 'opacity 160ms ease ' + Math.round(ms * 0.6) + 'ms';
+      miniArrows.style.opacity = '1';
+    }
+
+    const info = $('pvInfo');
+    const wordEl = $('pvWord');
+    wordEl.textContent = word;
+    wordEl.style.fontSize = Math.max(12, Math.min(27, info.clientWidth / (word.length * 0.8))).toFixed(1) + 'px';
+    const meta = $('pvMeta');
+    meta.textContent = fmt(Engine.scoreFor(word.length)) + ' points';
+    const status = document.createElement('span');
+    status.textContent = R.result.found.indexOf(word) >= 0 ? 'You found this one' : 'You missed this one';
+    meta.appendChild(status);
+  }
+
+  $('wordlist').addEventListener('click', e => {
+    const chip = e.target.closest ? e.target.closest('button[data-word]') : null;
+    if (chip) selectWord(chip.dataset.word);
+  });
+  $('pvClose').addEventListener('click', closePreview);
 
   $('tabFound').addEventListener('click', () => { if (R.result && R.tab !== 'found') { R.tab = 'found'; renderTabs(); } });
   $('tabMissed').addEventListener('click', () => { if (R.result && R.tab !== 'missed') { R.tab = 'missed'; renderTabs(); } });
@@ -2140,6 +2409,7 @@ const SelfTest = (() => {
 
   document.addEventListener('keydown', e => {
     if (e.key !== 'Escape') return;
+    if (R.selected) closePreview();
     closeConfirm();
     $('settings').classList.remove('open');
   });
